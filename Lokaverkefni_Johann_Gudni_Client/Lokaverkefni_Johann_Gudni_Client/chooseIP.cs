@@ -26,13 +26,15 @@ namespace Lokaverkefni_Johann_Gudni_Client
 
         private void bt_ip_Click(object sender, EventArgs e)
         {
-            ipaddress = tb_ip.Text;
+            
+
+                ipaddress = tb_ip.Text;
 
             
 
-            DialogResult = DialogResult.OK;
+                DialogResult = DialogResult.OK;
 
-            this.Close();
+                this.Close();
             
         }
     }

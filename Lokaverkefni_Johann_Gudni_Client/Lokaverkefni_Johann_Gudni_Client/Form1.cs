@@ -99,14 +99,15 @@ namespace Lokaverkefni_Johann_Gudni_Client
             {
                 
                 //This is a Question
-                question_Type = Convert.ToInt32(message.Split('|')[2]);
+                MessageBox.Show("Got the Question");
+                question_Type = Convert.ToInt32(message.Split('|')[1]);
                 switch(question_Type)
                 {
                     
                     case 0:
                         current_question = message.Split('|')[0];
                         DisplayLabel(current_question);
-                        
+                        this.Invoke((MethodInvoker)(() => Controls.Add(lb_question)));
 
 
                         break;
