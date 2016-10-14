@@ -16,7 +16,7 @@ namespace Lokaverkefni_Johann_Gudni_Server
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new ServerForm());
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Lokaverkefni_Johann_Gudni_Server
 {
-    partial class Form1
+    partial class ServerForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,12 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.displayTextBox = new System.Windows.Forms.RichTextBox();
+            this.SuspendLayout();
+            // 
+            // displayTextBox
+            // 
+            this.displayTextBox.Location = new System.Drawing.Point(13, 13);
+            this.displayTextBox.Name = "displayTextBox";
+            this.displayTextBox.Size = new System.Drawing.Size(298, 290);
+            this.displayTextBox.TabIndex = 0;
+            this.displayTextBox.Text = "";
+            // 
+            // ServerForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(323, 315);
+            this.Controls.Add(this.displayTextBox);
+            this.Name = "ServerForm";
             this.Text = "Form1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ServerForm_FormClosing);
+            this.Load += new System.EventHandler(this.ServerForm_Load);
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private System.Windows.Forms.RichTextBox displayTextBox;
     }
 }
 
