@@ -27,13 +27,43 @@ namespace Lokaverkefni_Johann_Gudni_Client
         private NetworkStream stream;        
         private bool done = false;
         private TextBox tb_textGuess;
+        private Label lb_question;
         private RadioButton[] rd_buttonGuess;
+        private string current_question;
+        private int score;
+        private string ipaddress;
+        private int question_Type;
+        
 
         private void ClientForm_Load(object sender, EventArgs e)
         {
+            using(var ipForm = new chooseIP())
+            {
+                var result = ipForm.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    ipaddress = ipForm.ipaddress;
+
+                }
+                else
+                {
+                    ipaddress = "127.0.0.1";
+                }
+            }
+            
+
+            
+            tb_textGuess = new TextBox();
+            tb_textGuess.Location = new Point(200, 300);
+
+
+            lb_question = new Label();
+            tb_textGuess.Location = new Point(200, 250);
+
             try
             {
-                connection = new TcpClient("127.0.0.1", 50000);
+                connection = new TcpClient(ipaddress, 50000);
                 stream = connection.GetStream();
                 writer = new BinaryWriter(stream);
                 reader = new BinaryReader(stream);
@@ -50,13 +80,13 @@ namespace Lokaverkefni_Johann_Gudni_Client
         }
 
         
-        private delegate void DisplayWordDelegate(string message);
+        private delegate void DisplayRadioDelegate(string message);
 
         private void DisplayMessage(string message)
         {
             if (rtb_output.InvokeRequired)
             {
-                Invoke(new DisplayWordDelegate(DisplayMessage),
+                Invoke(new DisplayRadioDelegate(DisplayMessage),
                    new object[] { message });
             }
             else
@@ -65,6 +95,36 @@ namespace Lokaverkefni_Johann_Gudni_Client
 
         public void ProcessMessage(string message)
         {
+            if (message.Split('|').Length > 1)
+            {
+                
+                //This is a Question
+                question_Type = Convert.ToInt32(message.Split('|')[2]);
+                switch(question_Type)
+                {
+                    
+                    case 0:
+                        current_question = message.Split('|')[0];
+                        DisplayLabel(current_question);
+                        
+
+
+                        break;
+
+                    case 1:
+
+                        break;
+
+                    case 2:
+
+                        break;
+
+
+                }
+                    
+
+            }
+
             if (message == "Win")
             {
                 MessageBox.Show("Takk Fyrir Leikinn");
@@ -87,6 +147,24 @@ namespace Lokaverkefni_Johann_Gudni_Client
       
                
         }
+
+        private delegate void DisplayLabelDelegate(string question);
+
+        private void DisplayLabel(string question)
+        {
+            if (rtb_output.InvokeRequired)
+            {
+                Invoke(new DisplayLabelDelegate(DisplayLabel),
+                   new object[] { question });
+            }
+            else
+                lb_question.Text = question;
+        }
+
+
+        
+        
+        
 
         public void Run()
         {
@@ -124,6 +202,8 @@ namespace Lokaverkefni_Johann_Gudni_Client
             writer.Write(tb_textGuess.Text.ToLower());
             tb_textGuess.Clear(); 
         }
+
+        
 
     }
 }
