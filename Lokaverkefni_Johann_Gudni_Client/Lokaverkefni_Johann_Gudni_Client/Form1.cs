@@ -80,43 +80,101 @@ namespace Lokaverkefni_Johann_Gudni_Client
         }
 
         
-        private delegate void DisplayRadioDelegate(string message);
+        private delegate void DisplayTextDelegate(string message);
 
         private void DisplayMessage(string message)
         {
             if (rtb_output.InvokeRequired)
             {
-                Invoke(new DisplayRadioDelegate(DisplayMessage),
+                Invoke(new DisplayTextDelegate(DisplayMessage),
                    new object[] { message });
             }
             else
-                rtb_output.Text = message;
+                rtb_output.Text += message + "\n";
+        }
+
+
+        private delegate void DisplayLabelDelegate(string question);
+
+        private void DisplayLabel(string question)
+        {
+            if (rtb_output.InvokeRequired)
+            {
+                Invoke(new DisplayLabelDelegate(DisplayLabel),
+                   new object[] { question });
+            }
+            else
+                lb_question.Text = question;
+        }
+
+        private delegate void DisplayRadioDelegate(string answer, int i);
+
+        private void DisplayRadio(string answer, int i)
+        {
+            if (rd_buttonGuess[i].InvokeRequired)
+            {
+                Invoke(new DisplayRadioDelegate(DisplayRadio),
+                   new object[] { answer, i});
+            }
+            else
+                rd_buttonGuess[i].Text = answer;
+            this.Controls.Add(rd_buttonGuess[i]);
+
+        }
+
+        private delegate void DisplayTextBoxDelegate(string answer, TextBox tb_answer);
+
+        private void DisplayTextBox(string answer, TextBox tb_answer)
+        {
+            if (tb_answer.InvokeRequired)
+            {
+                Invoke(new DisplayTextBoxDelegate(DisplayTextBox),
+                   new object[] { answer, tb_answer });
+            }
+            else
+                tb_answer.Text = answer;
+            this.Controls.Add(tb_answer);
+
         }
 
         public void ProcessMessage(string message)
         {
+            
             if (message.Split('|').Length > 1)
             {
                 
                 //This is a Question
+                current_question = message.Split('|')[0];
                 MessageBox.Show("Got the Question");
                 question_Type = Convert.ToInt32(message.Split('|')[1]);
                 switch(question_Type)
                 {
                     
                     case 0:
-                        current_question = message.Split('|')[0];
                         DisplayLabel(current_question);
                         this.Invoke((MethodInvoker)(() => Controls.Add(lb_question)));
-
+                        tb_textGuess = new TextBox();
+                        DisplayTextBox(message.Split('|')[3], tb_textGuess);
 
                         break;
 
                     case 1:
+                        DisplayLabel(current_question);
+                        
+                        rd_buttonGuess = new RadioButton[message.Split('|').Length-3];
+                        this.Invoke((MethodInvoker)(() => Controls.Add(lb_question)));
+                        for (int i = 3; i < message.Split('|').Length; i++)
+                        {
+                            string text = message.Split('|')[i];
+                            DisplayRadio(text, i-3);
+                            
+                        }
+                        
 
                         break;
 
                     case 2:
+                        
 
                         break;
 
@@ -149,18 +207,8 @@ namespace Lokaverkefni_Johann_Gudni_Client
                
         }
 
-        private delegate void DisplayLabelDelegate(string question);
+       
 
-        private void DisplayLabel(string question)
-        {
-            if (rtb_output.InvokeRequired)
-            {
-                Invoke(new DisplayLabelDelegate(DisplayLabel),
-                   new object[] { question });
-            }
-            else
-                lb_question.Text = question;
-        }
 
 
         
