@@ -17,7 +17,7 @@ namespace Lokaverkefni_Johann_Gudni_Server
         private ServerForm server;          
         private BinaryWriter writer;
         private BinaryReader reader; 
-        private int number;                                
+        private int number;               
         internal bool threadSuspended = true;
 
         public Player(Socket socket, ServerForm serverValue, int playerNumber)
@@ -56,7 +56,7 @@ namespace Lokaverkefni_Johann_Gudni_Server
             {
                 writer.Write("Both players connected.");
             } // end if
-
+            writer.Write(server.currentQuestion);
             // play game
             while (!done)
             {
@@ -67,11 +67,43 @@ namespace Lokaverkefni_Johann_Gudni_Server
                     if (server.disconnected)
                         return;
                 } // end while
-
                 // receive data
                 string message = reader.ReadString();
+                server.playerDone[number] = true;
+                if (!server.playerDone[(number + 1) % 2])
+                {
+                    server.lastPlayer = (number + 1) % 2;
+                    threadSuspended = true;
+                    lock (this)
+                    {
+                        while (threadSuspended)
+                            Monitor.Wait(this);
+                    }
+                }
+                server.DisplayMessage(number + " done");
                 ProcessMessage(message);
-            } // end while loop
+                server.DisplayMessage(number + " answered "+ message);
+                if (number == server.lastPlayer)
+                {
+                    server.LiftLock((number + 1) % 2);
+                    server.DisplayMessage("answer is: " + server.currentAnswer);
+                    server.Message("answer is: " + server.currentAnswer);
+                    Thread.Sleep(50);
+                    if (server.questionNumber == server.questionAmount)
+                    {
+                        server.Message("Thanks for playing!");
+                        server.Message("win");
+                    }
+                    server.NextQuestion();
+                    server.playerDone[0] = false;
+                    server.playerDone[1] = false;
+                }
+                else
+                {
+                    Thread.Sleep(100);
+                }
+                writer.Write(server.currentQuestion);
+            } // end while loop 
 
             writer.Close();
             reader.Close();
@@ -80,7 +112,15 @@ namespace Lokaverkefni_Johann_Gudni_Server
         }
         void ProcessMessage(string message)
         {
-
+            if (message == server.currentAnswer)
+            {
+                writer.Write("correct");
+                server.playerScore[number] += 1;
+            }
+            else
+            {
+                writer.Write("incorrect");
+            }
         }
         public void Message(string message)
         {

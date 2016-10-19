@@ -27,15 +27,57 @@ namespace Lokaverkefni_Johann_Gudni_Server
         private int currentPlayer; // keep track of whose turn it is         
         private Thread getPlayers; // Thread for acquiring client connections
         internal bool disconnected = false; // true if the server closes     
+        public string currentQuery = null;
+        public string currentAnswer = null;
+        public string currentQuestion = null;
+        public int questionNumber = 0;
+        public bool[] playerDone = new bool[2];
+        public int[] playerScore = new int[2];
+        public int lastPlayer = 0;
+        public int questionAmount = 3;
 
         private void ServerForm_Load(object sender, EventArgs e)
         {
             players = new Player[2];
             playerThreads = new Thread[2];
             currentPlayer = 0;
+            playerDone[0] = false;
+            playerDone[1] = false;
+            playerScore[0] = 0;
+            playerScore[1] = 0;
+            NextQuestion();
 
             getPlayers = new Thread(new ThreadStart(SetUp));
             getPlayers.Start();
+        }
+        public void NextQuestion()
+        {
+            string question = null;
+            string[] questions = new string[] { "What is 5 + 5?|1|3|10|20|30|10", "What year is it?|0|2016", "Ekki er allt...|2|...sem glóir|gull" };
+            currentQuery = questions[questionNumber];
+            string[] splitquery = currentQuery.Split('|');
+            currentAnswer = splitquery[splitquery.Length - 1];
+            for (int i = 0; i < splitquery.Length - 1; i++)
+            {
+                question += splitquery[i] + '|';
+            }  
+            questionNumber++;
+            currentQuestion = question.Substring(0,question.Length-1);
+        }
+        public void LiftLock(int player)
+        {
+            lock (players[player])
+            {
+                players[player].threadSuspended = false;
+                Monitor.Pulse(players[player]);
+            }  
+        }
+        public void Message(string msg)
+        {
+            foreach (var player in players)
+            {
+                player.Message(msg);
+            }
         }
 
         private delegate void DisplayDelegate(string message);
@@ -48,7 +90,7 @@ namespace Lokaverkefni_Johann_Gudni_Server
                    new object[] { message });
             }
             else
-                displayTextBox.Text += message;
+                displayTextBox.Text += message + "\n";
         }
         public void SetUp()
         {
@@ -72,12 +114,13 @@ namespace Lokaverkefni_Johann_Gudni_Server
             {
                 players[0].threadSuspended = false;
                 Monitor.Pulse(players[0]);
-            }                                                   
+            }                              
         }
 
         private void ServerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             disconnected = true;
+            Message("disconnect");
             System.Environment.Exit(System.Environment.ExitCode);
         }
 

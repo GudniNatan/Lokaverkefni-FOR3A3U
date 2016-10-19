@@ -30,7 +30,7 @@ namespace Lokaverkefni_Johann_Gudni_Client
         private Label lb_question;
         private RadioButton[] rd_buttonGuess;
         private string current_question;
-        private int score;
+        private int score = 0;
         private string ipaddress;
         private int question_Type;
         
@@ -51,16 +51,6 @@ namespace Lokaverkefni_Johann_Gudni_Client
                     ipaddress = "127.0.0.1";
                 }
             }
-            
-
-            
-            tb_textGuess = new TextBox();
-            tb_textGuess.Location = new Point(200, 300);
-
-
-            lb_question = new Label();
-            tb_textGuess.Location = new Point(200, 250);
-
             try
             {
                 connection = new TcpClient(ipaddress, 50000);
@@ -77,6 +67,29 @@ namespace Lokaverkefni_Johann_Gudni_Client
                 Environment.Exit(0);
             }
 
+        }
+
+        private void PlaceRadioButtons(int amount)
+        {
+            rd_buttonGuess = new RadioButton[amount];
+            for (int i = 0; i < amount; i++)
+            {
+                rd_buttonGuess[i] = new RadioButton();
+                rd_buttonGuess[i].Location = new Point(20, i * 20 + 20);
+                Controls.Add(rd_buttonGuess[i]);
+            }
+        }
+        private void PlaceTextBox()
+        {
+            tb_textGuess = new TextBox();
+            tb_textGuess.Location = new Point(20, 50);
+            Controls.Add(tb_textGuess);
+        }
+        private void PlaceQuestionLabel()
+        {
+            lb_question = new Label();
+            lb_question.Location = new Point(20, 100);
+            Controls.Add(lb_question);
         }
 
         
@@ -118,8 +131,6 @@ namespace Lokaverkefni_Johann_Gudni_Client
             }
             else
                 rd_buttonGuess[i].Text = answer;
-            this.Controls.Add(rd_buttonGuess[i]);
-
         }
 
         private delegate void DisplayTextBoxDelegate(string answer, TextBox tb_answer);
@@ -133,91 +144,87 @@ namespace Lokaverkefni_Johann_Gudni_Client
             }
             else
                 tb_answer.Text = answer;
-            this.Controls.Add(tb_answer);
-
+        }
+        private void EnableSubmitButton()
+        {
+            bt_guess.Enabled = true;
+        }
+        private void AddScore()
+        {
+            score++;
+            lb_score.Text = "Score: " + score;
         }
 
         public void ProcessMessage(string message)
         {
-            
             if (message.Split('|').Length > 1)
             {
-                
                 //This is a Question
                 current_question = message.Split('|')[0];
-                MessageBox.Show("Got the Question");
+                this.Invoke((MethodInvoker)(() => EnableSubmitButton()));
                 question_Type = Convert.ToInt32(message.Split('|')[1]);
                 switch(question_Type)
                 {
                     
                     case 0:
+                        //Normal text answer
+                        this.Invoke((MethodInvoker)(() => PlaceQuestionLabel()));
                         DisplayLabel(current_question);
-                        this.Invoke((MethodInvoker)(() => Controls.Add(lb_question)));
-                        tb_textGuess = new TextBox();
-                        DisplayTextBox(message.Split('|')[3], tb_textGuess);
+                        this.Invoke((MethodInvoker)(() => PlaceTextBox()));
 
                         break;
 
                     case 1:
+                        //Multiple choices
+                        this.Invoke((MethodInvoker)(() => PlaceQuestionLabel()));
                         DisplayLabel(current_question);
-                        
-                        rd_buttonGuess = new RadioButton[message.Split('|').Length-3];
-                        this.Invoke((MethodInvoker)(() => Controls.Add(lb_question)));
+                        int fields = message.Split('|').Length - 3;
+                        this.Invoke((MethodInvoker)(() => PlaceRadioButtons(fields)));
                         for (int i = 3; i < message.Split('|').Length; i++)
                         {
                             string text = message.Split('|')[i];
                             DisplayRadio(text, i-3);
-                            
                         }
-                        
-
                         break;
 
                     case 2:
-                        
+                        //Fill in the blank
+                        this.Invoke((MethodInvoker)(() => PlaceQuestionLabel()));
+                        DisplayLabel("Fylltu í eyðuna:");
 
                         break;
-
-
                 }
-                    
-
             }
-
-            if (message == "Win")
+            else if (message == "win")
             {
-                MessageBox.Show("Takk Fyrir Leikinn");
-
+                MessageBox.Show("You won with " + score +" points!");
+                Environment.Exit(0);
+            }
+            else if (message == "lose")
+            {
+                MessageBox.Show("You lost with " + score + " points.");
+                
+                Environment.Exit(0);
+            }
+            else if (message == "tie")
+            {
+                MessageBox.Show("It's a tie. Both players had " + score + " points.");
 
                 Environment.Exit(0);
             }
-            else if (message.Split()[0] == "Lose")
+            else if (message == "correct")
             {
-                MessageBox.Show("You lost, The correct word is " + message.Split()[1]);
-
-
-                Environment.Exit(0);
-
+                DisplayMessage(message);
+                this.Invoke((MethodInvoker)(() => AddScore()));
             }
             else
             {
                 DisplayMessage(message);
-            }
-      
+            }      
                
         }
-
-       
-
-
-
-        
-        
-        
-
         public void Run()
         {
-
             try
             {
                 while (!done)
@@ -225,34 +232,39 @@ namespace Lokaverkefni_Johann_Gudni_Client
             }
             catch (IOException)
             {
-                MessageBox.Show("Server Is Down, Game Over!!", "Error",
-                   MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DisplayMessage("Server Is Down, Game Over!!");
                 Environment.Exit(0);
             }
         }
 
         private void ClientForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            try
-            {
-                done = true;
-                System.Environment.Exit(System.Environment.ExitCode);
-            }
-            catch (Exception)
-            {
-
-                Environment.Exit(0);
-            }
-            
+            System.Environment.Exit(System.Environment.ExitCode);
         }
 
         private void bt_guess_Click_1(object sender, EventArgs e)
         {
-            writer.Write(tb_textGuess.Text.ToLower());
-            tb_textGuess.Clear(); 
+            bt_guess.Enabled = false;
+            if (question_Type == 0)
+            {
+                writer.Write(tb_textGuess.Text.ToLower());
+                tb_textGuess.Clear();
+                Controls.Remove(tb_textGuess);
+                Controls.Remove(lb_question);
+            }
+            else if (question_Type == 1)
+            {
+                Controls.Remove(lb_question);
+                foreach (var rdb in rd_buttonGuess)
+                {
+                    if (rdb.Checked)
+                    {
+                        writer.Write(rdb.Text);
+                    }
+                    Controls.Remove(rdb);
+                }
+                rd_buttonGuess = null;                
+            }
         }
-
-        
-
     }
 }
