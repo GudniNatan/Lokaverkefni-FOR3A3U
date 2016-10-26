@@ -1,0 +1,9 @@
+What is 5 + 5?|1|3|10|20|30|10
+What year is it?|0|2016
+Ekki er allt...|2|...sem glóir|gull
+Does human exist?|1|2|Yes|No|Yes
+What's 10 * 10?|0|100
+Mamma er...|2|...skemmtilegt|mjög
+What is the largest number of five digits?|0|99999
+I'm not...|2|...person|dangerous
+Steve Jobs is the founder of which company?|1|3|Apple|Microsoft|Samsung|Apple
