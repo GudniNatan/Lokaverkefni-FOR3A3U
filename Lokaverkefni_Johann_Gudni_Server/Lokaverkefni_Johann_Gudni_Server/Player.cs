@@ -117,6 +117,10 @@ namespace Lokaverkefni_Johann_Gudni_Server
                 writer.Write("correct");
                 server.playerScore[number] += 1;
             }
+            else if (message == "disconnect")
+            {
+
+            }
             else
             {
                 writer.Write("incorrect");

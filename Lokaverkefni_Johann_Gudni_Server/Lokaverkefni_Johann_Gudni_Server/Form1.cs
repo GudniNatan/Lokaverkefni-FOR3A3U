@@ -79,6 +79,21 @@ namespace Lokaverkefni_Johann_Gudni_Server
                 player.Message(msg);
             }
         }
+        public void EndGame()
+        {
+            players = new Player[2];
+            playerThreads = new Thread[2];
+            currentPlayer = 0;
+            playerDone[0] = false;
+            playerDone[1] = false;
+            playerScore[0] = 0;
+            playerScore[1] = 0;
+            questionNumber = 0;
+            NextQuestion();
+
+            getPlayers = new Thread(new ThreadStart(SetUp));
+            getPlayers.Start();
+        }
 
         private delegate void DisplayDelegate(string message);
 
@@ -120,7 +135,8 @@ namespace Lokaverkefni_Johann_Gudni_Server
         private void ServerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             disconnected = true;
-            Message("disconnect");
+            if (players[0].connection.Connected && players[1].connection.Connected)
+                Message("disconnect");
             System.Environment.Exit(System.Environment.ExitCode);
         }
 

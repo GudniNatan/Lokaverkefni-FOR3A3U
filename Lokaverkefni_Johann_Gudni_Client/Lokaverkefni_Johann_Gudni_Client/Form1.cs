@@ -66,7 +66,6 @@ namespace Lokaverkefni_Johann_Gudni_Client
                 MessageBox.Show("Server Is Currently Down! Please Try Again Later.");
                 Environment.Exit(0);
             }
-
         }
 
         private void PlaceRadioButtons(int amount)
@@ -75,20 +74,20 @@ namespace Lokaverkefni_Johann_Gudni_Client
             for (int i = 0; i < amount; i++)
             {
                 rd_buttonGuess[i] = new RadioButton();
-                rd_buttonGuess[i].Location = new Point(20, i * 20 + 20);
+                rd_buttonGuess[i].Location = new Point(20, i * 20 + 50);
                 Controls.Add(rd_buttonGuess[i]);
             }
         }
         private void PlaceTextBox()
         {
             tb_textGuess = new TextBox();
-            tb_textGuess.Location = new Point(20, 50);
+            tb_textGuess.Location = new Point(20, 70);
             Controls.Add(tb_textGuess);
         }
         private void PlaceQuestionLabel()
         {
             lb_question = new Label();
-            lb_question.Location = new Point(20, 100);
+            lb_question.Location = new Point(20, 30);
             Controls.Add(lb_question);
         }
 
