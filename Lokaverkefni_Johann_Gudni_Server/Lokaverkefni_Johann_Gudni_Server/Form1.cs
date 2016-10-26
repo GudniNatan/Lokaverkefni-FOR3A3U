@@ -34,7 +34,8 @@ namespace Lokaverkefni_Johann_Gudni_Server
         public bool[] playerDone = new bool[2];
         public int[] playerScore = new int[2];
         public int lastPlayer = 0;
-        public int questionAmount = 3;
+        public int questionAmount = 0;
+        private List<string> questions;
 
         private void ServerForm_Load(object sender, EventArgs e)
         {
@@ -45,17 +46,22 @@ namespace Lokaverkefni_Johann_Gudni_Server
             playerDone[1] = false;
             playerScore[0] = 0;
             playerScore[1] = 0;
+            questions = ReadFile("questions.txt");
+            questions.Shuffle();
+            questionAmount = questions.Count;
+
             NextQuestion();
 
             getPlayers = new Thread(new ThreadStart(SetUp));
             getPlayers.Start();
+
+
         }
         public void NextQuestion()
         {
             if (questionNumber < questionAmount)
             {
                 string question = null;
-                string[] questions = new string[] { "What is 5 + 5?|1|3|10|20|30|10", "What year is it?|0|2016", "Ekki er allt...|2|...sem glóir|gull" };
                 currentQuery = questions[questionNumber];
                 string[] splitquery = currentQuery.Split('|');
                 currentAnswer = splitquery[splitquery.Length - 1];
@@ -151,6 +157,27 @@ namespace Lokaverkefni_Johann_Gudni_Server
                 Monitor.Pulse(players[0]);
             }                              
         }
+        public List<string> ReadFile(string filename)
+        {
+            List<string> list = new List<string>();
+            try
+            {
+                using (StreamReader reader = new StreamReader(filename))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        list.Add(line); // Add to list.
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                list.Add(ex.Message);
+            }
+
+            return list;
+        }
 
         private void ServerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -161,5 +188,22 @@ namespace Lokaverkefni_Johann_Gudni_Server
         }
 
         
+    }
+    static class MyExtensions
+    {
+        private static Random rng = new Random();
+
+        public static void Shuffle<T>(this IList<T> list)
+        {
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
     }
 }

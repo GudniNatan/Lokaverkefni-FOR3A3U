@@ -89,6 +89,7 @@ namespace Lokaverkefni_Johann_Gudni_Client
         {
             lb_question = new Label();
             lb_question.Location = new Point(20, 30);
+            lb_question.AutoSize = true;
             Controls.Add(lb_question);
         }
         private void PlaceFillLabel(string part1, string part2)
@@ -99,6 +100,8 @@ namespace Lokaverkefni_Johann_Gudni_Client
             lb_part2.Text = part2;
             lb_part1.Location = new Point(20, 70);
             lb_part2.Location = new Point(20, 130);
+            lb_part1.AutoSize = true;
+            lb_part2.AutoSize = true;
             tb_textGuess.Location = new Point(20, 100);
 
             Controls.Add(lb_part1);
@@ -291,6 +294,7 @@ namespace Lokaverkefni_Johann_Gudni_Client
                 Controls.Remove(lb_part1);
                 Controls.Remove(lb_part2);
                 Controls.Remove(tb_textGuess);
+                Controls.Remove(lb_question);
             }
         }
         

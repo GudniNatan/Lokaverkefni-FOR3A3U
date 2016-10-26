@@ -145,7 +145,7 @@ namespace Lokaverkefni_Johann_Gudni_Server
         }
         public void Message(string message)
         {
-            if (connection.Connected == true && !done)
+            if (connection.Connected && !done)
             {
                 writer.Write(message);
             }
