@@ -71,7 +71,9 @@
             this.Controls.Add(this.rtb_output);
             this.Name = "ClientForm";
             this.Text = "Form1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ClientForm_FormClosing);
             this.Load += new System.EventHandler(this.ClientForm_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ClientForm_KeyDown);
             this.ResumeLayout(false);
             this.PerformLayout();
 

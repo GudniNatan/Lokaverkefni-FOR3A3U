@@ -52,35 +52,54 @@ namespace Lokaverkefni_Johann_Gudni_Server
         }
         public void NextQuestion()
         {
-            string question = null;
-            string[] questions = new string[] { "What is 5 + 5?|1|3|10|20|30|10", "What year is it?|0|2016", "Ekki er allt...|2|...sem glóir|gull" };
-            currentQuery = questions[questionNumber];
-            string[] splitquery = currentQuery.Split('|');
-            currentAnswer = splitquery[splitquery.Length - 1];
-            for (int i = 0; i < splitquery.Length - 1; i++)
+            if (questionNumber < questionAmount)
             {
-                question += splitquery[i] + '|';
-            }  
+                string question = null;
+                string[] questions = new string[] { "What is 5 + 5?|1|3|10|20|30|10", "What year is it?|0|2016", "Ekki er allt...|2|...sem glóir|gull" };
+                currentQuery = questions[questionNumber];
+                string[] splitquery = currentQuery.Split('|');
+                currentAnswer = splitquery[splitquery.Length - 1];
+                for (int i = 0; i < splitquery.Length - 1; i++)
+                {
+                    question += splitquery[i] + '|';
+                }
+                currentQuestion = question.Substring(0, question.Length - 1);
+            }
+
+            
             questionNumber++;
-            currentQuestion = question.Substring(0,question.Length-1);
         }
         public void LiftLock(int player)
         {
-            lock (players[player])
+            if (players[player] != null)
             {
-                players[player].threadSuspended = false;
-                Monitor.Pulse(players[player]);
-            }  
+                lock (players[player])
+                {
+                    players[player].threadSuspended = false;
+                    Monitor.Pulse(players[player]);
+                }
+            }
         }
         public void Message(string msg)
         {
             foreach (var player in players)
             {
-                player.Message(msg);
+                if (player != null)
+                {
+                    player.Message(msg);
+                }
             }
         }
         public void EndGame()
         {
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null && players[i].connection.Connected)
+                {
+                    players[i].Disconnect();
+                    LiftLock(i);                    
+                }
+            }
             players = new Player[2];
             playerThreads = new Thread[2];
             currentPlayer = 0;
@@ -89,8 +108,9 @@ namespace Lokaverkefni_Johann_Gudni_Server
             playerScore[0] = 0;
             playerScore[1] = 0;
             questionNumber = 0;
-            NextQuestion();
+            listener.Stop();
 
+            getPlayers.Abort();
             getPlayers = new Thread(new ThreadStart(SetUp));
             getPlayers.Start();
         }
@@ -135,7 +155,7 @@ namespace Lokaverkefni_Johann_Gudni_Server
         private void ServerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             disconnected = true;
-            if (players[0].connection.Connected && players[1].connection.Connected)
+            if (players[0] != null && players[1] != null && players[0].connection.Connected && players[1].connection.Connected)
                 Message("disconnect");
             System.Environment.Exit(System.Environment.ExitCode);
         }

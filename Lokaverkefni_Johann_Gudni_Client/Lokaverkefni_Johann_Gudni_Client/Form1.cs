@@ -212,10 +212,6 @@ namespace Lokaverkefni_Johann_Gudni_Client
                         DisplayLabel("Fylltu í eyðuna:");
                         this.Invoke((MethodInvoker)(() => PlaceFillLabel(part1, part2)));
 
-                        
-                        
-                        
-
                         break;
                 }
             }
@@ -253,6 +249,11 @@ namespace Lokaverkefni_Johann_Gudni_Client
             {
                 while (!done)
                     ProcessMessage(reader.ReadString());
+
+                connection.Close();
+                stream.Close();
+                writer.Close();
+                reader.Close();
             }
             catch (IOException)
             {
@@ -260,13 +261,7 @@ namespace Lokaverkefni_Johann_Gudni_Client
                 Environment.Exit(0);
             }
         }
-
-        private void ClientForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            System.Environment.Exit(System.Environment.ExitCode);
-        }
-
-        private void bt_guess_Click_1(object sender, EventArgs e)
+        private void SubmitData()
         {
             bt_guess.Enabled = false;
             if (question_Type == 0)
@@ -287,7 +282,7 @@ namespace Lokaverkefni_Johann_Gudni_Client
                     }
                     Controls.Remove(rdb);
                 }
-                rd_buttonGuess = null;                
+                rd_buttonGuess = null;
             }
             else if (question_Type == 2)
             {
@@ -296,8 +291,31 @@ namespace Lokaverkefni_Johann_Gudni_Client
                 Controls.Remove(lb_part1);
                 Controls.Remove(lb_part2);
                 Controls.Remove(tb_textGuess);
-
             }
+        }
+        
+
+        private void bt_guess_Click_1(object sender, EventArgs e)
+        {
+            SubmitData();
+        }
+
+        private void ClientForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SubmitData();
+            }
+        }
+        private void ClientForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            writer.Write("disconnect");
+            stream.Close();
+            connection.Close();
+            writer.Close();
+            reader.Close();
+            stream.Dispose();
+            System.Environment.Exit(System.Environment.ExitCode);
         }
     }
 }

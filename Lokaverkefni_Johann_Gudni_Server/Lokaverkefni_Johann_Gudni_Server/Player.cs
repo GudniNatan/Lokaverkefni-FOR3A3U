@@ -19,6 +19,7 @@ namespace Lokaverkefni_Johann_Gudni_Server
         private BinaryReader reader; 
         private int number;               
         internal bool threadSuspended = true;
+        private bool done = false;
 
         public Player(Socket socket, ServerForm serverValue, int playerNumber)
         {
@@ -33,7 +34,6 @@ namespace Lokaverkefni_Johann_Gudni_Server
 
         public void Run()
         {
-            bool done = false;
 
             writer.Write("Connected");
             server.DisplayMessage("Player " + number + " connected.");
@@ -89,20 +89,28 @@ namespace Lokaverkefni_Johann_Gudni_Server
                     server.DisplayMessage("answer is: " + server.currentAnswer);
                     server.Message("answer is: " + server.currentAnswer);
                     Thread.Sleep(50);
-                    if (server.questionNumber == server.questionAmount)
-                    {
-                        server.Message("Thanks for playing!");
-                        server.Message("win");
-                    }
                     server.NextQuestion();
                     server.playerDone[0] = false;
                     server.playerDone[1] = false;
                 }
                 else
                 {
-                    Thread.Sleep(100);
+                    Thread.Sleep(150);
                 }
-                writer.Write(server.currentQuestion);
+                if (server.questionNumber > server.questionAmount)
+                {
+                    server.Message("Thanks for playing!");
+                    if (server.playerScore[number] > server.playerScore[(number + 1) % 2])
+                        writer.Write("win");
+                    else if (server.playerScore[number] == server.playerScore[(number + 1) % 2])
+                        writer.Write("tie");
+                    else
+                        writer.Write("lose");
+                    done = true;
+                    break;
+                }
+                if (connection.Connected)
+                    writer.Write(server.currentQuestion);
             } // end while loop 
 
             writer.Close();
@@ -119,16 +127,28 @@ namespace Lokaverkefni_Johann_Gudni_Server
             }
             else if (message == "disconnect")
             {
-
+                server.DisplayMessage("Player " + number + " disconnected.");
+                server.EndGame();
             }
             else
             {
                 writer.Write("incorrect");
             }
         }
+        public void Disconnect()
+        {
+            done = true;
+            writer.Close();
+            reader.Close();
+            stream.Close();
+            connection.Close();
+        }
         public void Message(string message)
         {
-            writer.Write(message);
+            if (connection.Connected == true && !done)
+            {
+                writer.Write(message);
+            }
         }
 
     }
