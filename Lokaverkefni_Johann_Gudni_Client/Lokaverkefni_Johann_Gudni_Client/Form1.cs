@@ -24,7 +24,8 @@ namespace Lokaverkefni_Johann_Gudni_Client
         private BinaryWriter writer;
         private Thread outputThread; 
         private TcpClient connection; 
-        private NetworkStream stream;        
+        private NetworkStream stream;
+        private Label lb_part1,lb_part2;
         private bool done = false;
         private TextBox tb_textGuess;
         private Label lb_question;
@@ -90,7 +91,23 @@ namespace Lokaverkefni_Johann_Gudni_Client
             lb_question.Location = new Point(20, 30);
             Controls.Add(lb_question);
         }
+        private void PlaceFillLabel(string part1, string part2)
+        {
+            lb_part1 = new Label();
+            lb_part2 = new Label();
+            lb_part1.Text = part1;
+            lb_part2.Text = part2;
+            lb_part1.Location = new Point(20, 70);
+            lb_part2.Location = new Point(20, 130);
+            tb_textGuess.Location = new Point(20, 100);
 
+            Controls.Add(lb_part1);
+            Controls.Add(tb_textGuess);
+            Controls.Add(lb_part2);
+
+        }
+
+        
         
         private delegate void DisplayTextDelegate(string message);
 
@@ -189,7 +206,15 @@ namespace Lokaverkefni_Johann_Gudni_Client
                     case 2:
                         //Fill in the blank
                         this.Invoke((MethodInvoker)(() => PlaceQuestionLabel()));
+                        string part1 = message.Split('|')[0];
+                        string part2 = message.Split('|')[2];
+
                         DisplayLabel("Fylltu í eyðuna:");
+                        this.Invoke((MethodInvoker)(() => PlaceFillLabel(part1, part2)));
+
+                        
+                        
+                        
 
                         break;
                 }
@@ -263,6 +288,15 @@ namespace Lokaverkefni_Johann_Gudni_Client
                     Controls.Remove(rdb);
                 }
                 rd_buttonGuess = null;                
+            }
+            else if (question_Type == 2)
+            {
+                writer.Write(tb_textGuess.Text.ToLower());
+                tb_textGuess.Clear();
+                Controls.Remove(lb_part1);
+                Controls.Remove(lb_part2);
+                Controls.Remove(tb_textGuess);
+
             }
         }
     }
