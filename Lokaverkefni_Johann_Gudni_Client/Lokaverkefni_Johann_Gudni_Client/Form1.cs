@@ -102,6 +102,7 @@ namespace Lokaverkefni_Johann_Gudni_Client
             lb_part2.Location = new Point(20, 130);
             lb_part1.AutoSize = true;
             lb_part2.AutoSize = true;
+            tb_textGuess = new TextBox();
             tb_textGuess.Location = new Point(20, 100);
 
             Controls.Add(lb_part1);
@@ -313,13 +314,26 @@ namespace Lokaverkefni_Johann_Gudni_Client
         }
         private void ClientForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            writer.Write("disconnect");
-            stream.Close();
-            connection.Close();
-            writer.Close();
-            reader.Close();
-            stream.Dispose();
+            try
+            {
+                writer.Write("disconnect");
+                stream.Close();
+                connection.Close();
+                writer.Close();
+                reader.Close();
+                stream.Dispose();
+            }
+            catch (Exception)
+            {
+            }
             System.Environment.Exit(System.Environment.ExitCode);
+
+        }
+
+        private void rtb_output_TextChanged(object sender, EventArgs e)
+        {
+            rtb_output.SelectionStart = rtb_output.Text.Length;
+            rtb_output.ScrollToCaret();
         }
     }
 }

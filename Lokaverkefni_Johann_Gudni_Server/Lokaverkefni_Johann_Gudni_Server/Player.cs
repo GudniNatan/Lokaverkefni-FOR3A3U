@@ -70,7 +70,7 @@ namespace Lokaverkefni_Johann_Gudni_Server
                 // receive data
                 string message = reader.ReadString();
                 server.playerDone[number] = true;
-                if (!server.playerDone[(number + 1) % 2])
+                if (!server.playerDone[(number + 1) % 2] && !done)
                 {
                     server.lastPlayer = (number + 1) % 2;
                     threadSuspended = true;
@@ -147,7 +147,15 @@ namespace Lokaverkefni_Johann_Gudni_Server
         {
             if (connection.Connected && !done)
             {
-                writer.Write(message);
+                try
+                {
+                    Thread.Sleep(1);
+                    writer.Write(message);
+                }
+                catch (Exception)
+                {
+                    server.DisplayMessage("Could not message player " + number + ".");
+                }
             }
         }
 

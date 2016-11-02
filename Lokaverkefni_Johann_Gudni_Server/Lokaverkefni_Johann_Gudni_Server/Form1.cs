@@ -106,6 +106,7 @@ namespace Lokaverkefni_Johann_Gudni_Server
                     LiftLock(i);                    
                 }
             }
+            getPlayers.Abort();
             players = new Player[2];
             playerThreads = new Thread[2];
             currentPlayer = 0;
@@ -116,7 +117,6 @@ namespace Lokaverkefni_Johann_Gudni_Server
             questionNumber = 0;
             listener.Stop();
 
-            getPlayers.Abort();
             getPlayers = new Thread(new ThreadStart(SetUp));
             getPlayers.Start();
         }
@@ -162,7 +162,7 @@ namespace Lokaverkefni_Johann_Gudni_Server
             List<string> list = new List<string>();
             try
             {
-                using (StreamReader reader = new StreamReader(filename))
+                using (StreamReader reader = new StreamReader(filename, Encoding.Default, true))
                 {
                     string line;
                     while ((line = reader.ReadLine()) != null)
@@ -173,7 +173,7 @@ namespace Lokaverkefni_Johann_Gudni_Server
             }
             catch (Exception ex)
             {
-                list.Add(ex.Message);
+                DisplayMessage("Exception: " + ex);
             }
 
             return list;
@@ -185,6 +185,12 @@ namespace Lokaverkefni_Johann_Gudni_Server
             if (players[0] != null && players[1] != null && players[0].connection.Connected && players[1].connection.Connected)
                 Message("disconnect");
             System.Environment.Exit(System.Environment.ExitCode);
+        }
+
+        private void displayTextBox_TextChanged(object sender, EventArgs e)
+        {
+            displayTextBox.SelectionStart = displayTextBox.Text.Length;
+            displayTextBox.ScrollToCaret();
         }
 
         

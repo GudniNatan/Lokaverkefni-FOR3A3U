@@ -38,6 +38,7 @@
             this.displayTextBox.Size = new System.Drawing.Size(298, 290);
             this.displayTextBox.TabIndex = 0;
             this.displayTextBox.Text = "";
+            this.displayTextBox.TextChanged += new System.EventHandler(this.displayTextBox_TextChanged);
             // 
             // ServerForm
             // 

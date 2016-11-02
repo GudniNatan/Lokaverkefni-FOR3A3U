@@ -40,6 +40,7 @@
             this.rtb_output.Size = new System.Drawing.Size(313, 96);
             this.rtb_output.TabIndex = 0;
             this.rtb_output.Text = "";
+            this.rtb_output.TextChanged += new System.EventHandler(this.rtb_output_TextChanged);
             // 
             // bt_guess
             // 
